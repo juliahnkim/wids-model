@@ -361,6 +361,13 @@ Work one priority at a time. Confirm output county counts match baseline
 (879 counties) before moving to next priority. If counts drop after a change,
 a join broke — fix before proceeding.
 
+CRITICAL REMINDERS:
+- UCLA multiplier was removed from dollar loss (2026-04-03). Do NOT add it back.
+  Formula: predicted_gdp_loss_m = GDP × |impact%| × wui_housing_fraction
+- force_retrain is False. Do not change without explicit instruction.
+- MIN_ACREAGE=50 (not 100). Do not revert.
+- All sensitivity analysis parameters confirmed — do not change any config values.
+
 ---
 
 ## Status Tracking
@@ -386,11 +393,19 @@ a join broke — fix before proceeding.
        (58/58 CA counties, ig_penalty implemented, SF from city dataset)
 - P3j: FTB B-7 AGI income vulnerability
        (58/58 CA counties, r=-0.458 with fiscal — complementary not redundant)
-- P3k: SCO TOT tourism amplifier (CA only)
+- P3k: SCO TOT tourism amplifier (CA only) — COMPLETE
        (57/58 CA counties, tot_share 0.000–0.098, amplifier 1.000–1.200,
         Mariposa highest at 0.098 (Yosemite gateway), clip-only pattern,
-        tier impact: +1 High, -1 Moderate, 879 baseline held)
-- P3: ALL DATA SOURCES COMPLETE (P3a–P3k + FAIR Plan res/com split + private well proxy)
+        tier impact: +1 High (141), -1 Moderate (392), 879 baseline held)
+       Bug fixed: normalize() incorrectly applied initially — fixed to clip-only
+       Note: TOT undercounts wine-country day-trip tourism (Napa/Sonoma).
+       NASS amplifier partially compensates via high ag land values.
+- P3m: USFS WUI 2020 economic exposure fraction — COMPLETE
+       (875/879 counties matched, 4 median-filled, LA=0.2017)
+       Dollar loss fix: predicted_gdp_loss_m = GDP × |impact%| × wui_fraction
+       LA County: $140B → $26B (consistent with 2025 Palisades/Eaton scale)
+       UCLA multiplier removed — was double-counting (gdp impact already total measure)
+- P3: ALL DATA SOURCES COMPLETE except P3l (NSI in progress)
 - P4: Infrastructure resilience score — all 3 pillars complete
        (std=0.157, range=0.885, 879 baseline held)
 
@@ -413,10 +428,44 @@ a join broke — fix before proceeding.
 - Counties: 879
 - MIN_ACREAGE: 50
 - Model: Stratified XGBoost — CA R²=0.629 (792 rows, 6 feat), non-CA R²=0.589 (1324 rows, 8 feat)
-- Ready for: P7 (narrative engine), P8 (SFA module), dashboard integration
+- Validation: National Pearson r=0.550, CA r=0.794, MAE=1.87%
+- Dollar loss: WUI-adjusted (predicted_gdp_loss_m = GDP × |impact%| × wui_fraction)
+  UCLA multiplier REMOVED — double-counted (gdp impact already total economic measure)
+- Tier distribution: Critical=30, High=141, Moderate=392, Low=316
 
-### In Progress
+### Sensitivity Analysis (all complete — no changes)
+- MIN_ACREAGE: 50 (changed from 100 — confirmed, +39% training rows, CA R² 0.554→0.629)
+- PRE_POST_QTR: 4 (confirmed — acute shock window, wider = recovery dilution)
+- N_CONTROLS: 5 (confirmed — stable across 3–10, diminishing returns past 5)
+- DECAY_RATE: 0.3 (confirmed — top 10 identical across 0.1–0.5)
+- Tier cuts [0.25/0.50/0.75] (confirmed — top 10 identical across 4 schemes)
 
-### Not Started
-- P7: Claude API narrative engine
-- P8: Secondary Fire Area module
+### Known Issues / Documented Limitations
+- CAUSAL LEAKAGE: causal_impact_score derived from counterfactual_gap (same as
+  LABEL_COL). Weight collapsed to 0.06 from 0.40. Fix requires held-out event split —
+  needs more data. Documented in MODEL_CHANGES.md.
+- INFRASTRUCTURE AMPLIFIER UNTRAINED: α=0.35 default, never validated vs economic
+  outcomes. Grid search showed r=0.053 (p=0.36) vs counterfactual_gap. Was trained
+  vs recovery_score (r=0.41) — measures recovery duration, not initial shock.
+  95% of counties get >1.10x amplification. Pending P5 rerun.
+- DOLLAR LOSS LARGE METROS: large_metro_flag=True for counties GDP>$50B.
+  dollar_loss_confidence="directional". P7 narrative adds caveat.
+- RETROSPECTIVE PROBABILITY: geo_events covers 2021–2025. Top Critical counties
+  have already burned in this window — probability is risk index not forecast.
+- NSI CENSUS BLOCK JOIN: FEMA NSI being downloaded for CA. Uses census block
+  join (NSI.cbfips == WUI.BLK20) for WUI-specific replacement values — more
+  accurate than WUI fraction × total replacement value.
+
+
+### Priority Order for Remaining Work
+1. **P3l** — FEMA NSI download + census block join + pipeline integration
+2. **P8** — Secondary Fire Area module — ELEVATED TO #2 because it fixes the
+   retrospective probability limitation (the most significant methodological gap).
+   Current probability score measures past fires (2021–2025), not forward-looking risk.
+   P8 replaces this with fuel load, WUI exposure, fire weather index.
+   Requires: PostGIS, pgRouting, DuckDB. Separate file: sfa_analysis.py.
+3. **P5 rerun** — retrain untrained weights (NASS_AMPLIFIER, TOT_AMPLIFIER,
+   FC_WEIGHTS TIGER keys, CA water weights, infrastructure amplifier α)
+   After P3l stable and before P7 narratives use dollar figures.
+4. **P7** — Claude API narrative engine (government 3-question framework + HMGP grants)
+   Requires P3l complete for structure counts. Requires ANTHROPIC_API_KEY env var.
