@@ -1,0 +1,243 @@
+======================================================================
+   WILDFIRE ECONOMIC RISK — SHAREHOLDER SUMMARY REPORT
+======================================================================
+
+  Reference date:         2026-04-02
+  Counties in final output: 879
+  Probability counties:     962
+  Impact counties:          2968
+
+  METHODOLOGY:
+    Final Risk  = Probability Score × Impact Score
+   Probability = Drought (77%) + Fire Frequency (23%)
+   Impact      = Causal Impact (6%) + Industry Sensitivity (45%) + Economic Trajectory (49%)
+
+──────────────────────────────────────────────────────────────────────
+FINAL RISK TIER DISTRIBUTION:
+final_risk_tier
+Moderate    393
+Low         316
+High        140
+Critical     29
+
+RISK QUADRANT DISTRIBUTION:
+risk_quadrant
+Low Probability / Low Impact      501
+High Probability / Low Impact     158
+Low Probability / High Impact     158
+High Probability / High Impact     62
+
+──────────────────────────────────────────────────────────────────────
+TOP 10 — HIGHEST PROBABILITY OF FIRE:
+ probability_rank       county_name state  probability_score probability_tier  max_consecutive_weeks  fire_count
+                1   San Juan County    UT           0.783632         Critical                    261         165
+                2 Rio Arriba County    NM           0.781416         Critical                    261         275
+                3     Cibola County    NM           0.776169         Critical                    261         107
+                4   San Juan County    NM           0.770297         Critical                    261         208
+                5   McKinley County    NM           0.770074         Critical                    261          87
+                6   Sandoval County    NM           0.769826         Critical                    261         178
+                7    Wheeler County    OR           0.760680         Critical                    214          72
+                8   Garfield County    UT           0.716290             High                    232         109
+                9   Coconino County    AZ           0.698622             High                    229        1331
+               10      Wayne County    UT           0.696600             High                    232          21
+
+──────────────────────────────────────────────────────────────────────
+TOP 10 — HIGHEST ECONOMIC IMPACT IF FIRE OCCURS:
+ impact_rank   county_name state  impact_score impact_tier trajectory  avg_counterfactual_gap
+           2           NaN    KY      0.772970        High    At Risk                     NaN
+           1           NaN    PR      0.732163        High    At Risk                     NaN
+           6 San Augustine    TX      0.720506        High  Resilient              -11.057515
+          14           NaN    MN      0.715624        High    At Risk                     NaN
+          22           NaN    KY      0.709255        High    At Risk                     NaN
+          39           NaN    NE      0.708774        High    At Risk                     NaN
+           3           NaN    PR      0.708269        High    At Risk                     NaN
+         104           NaN    IA      0.703706        High    At Risk                     NaN
+           9           NaN    MS      0.702379        High    At Risk                     NaN
+           5           NaN    TX      0.696797        High    At Risk                     NaN
+
+──────────────────────────────────────────────────────────────────────
+TOP 10 — HIGHEST COMBINED RISK (PROBABILITY × IMPACT):
+ final_rank     county_name state  final_risk_score final_risk_tier  probability_score  impact_score                  risk_quadrant
+          1 San Juan County    UT          1.000000             NaN           0.783632      0.551980 High Probability / High Impact
+          2 Garfield County    UT          0.980250        Critical           0.716290      0.597151 High Probability / High Impact
+          3   Cibola County    NM          0.964931        Critical           0.776169      0.553864 High Probability / High Impact
+          4   DeBaca County    NM          0.960617        Critical           0.684699      0.622178 High Probability / High Impact
+          5    Piute County    UT          0.923118        Critical           0.621858      0.673305 High Probability / High Impact
+          6 San Juan County    NM          0.917827        Critical           0.770297      0.533998 High Probability / High Impact
+          7    Wayne County    UT          0.901479        Critical           0.696600      0.561824 High Probability / High Impact
+          8     Lake County    OR          0.857453        Critical           0.685355      0.546882 High Probability / High Impact
+          9 Presidio County    TX          0.845681        Critical           0.631551      0.582562 High Probability / High Impact
+         10 McKinley County    NM          0.842939        Critical           0.770074      0.492042  High Probability / Low Impact
+
+──────────────────────────────────────────────────────────────────────
+TOP 10 COUNTY NARRATIVES:
+
+San Juan County, UT — nan Risk
+Final Score: 1.000  |  Probability: 0.784  |  Impact: 0.552
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 261 weeks, indicating significant fuel dryness.
+Historical fire frequency of 165 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 6.0% year-over-year.
+Compared to 5 economically matched counties with no fire activity, San Juan County underperformed by 12.6 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $208M – $265M (UCLA Anderson methodology)
+Estimated wage loss at risk: $50M
+
+INDUSTRY EXPOSURE: Dominant sector is RV (Recreational Vehicle) Parks and Campgrounds, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 5.9% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+Garfield County, UT — Critical Risk
+Final Score: 0.980  |  Probability: 0.716  |  Impact: 0.597
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 232 weeks, indicating significant fuel dryness.
+Historical fire frequency of 109 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 4.8% year-over-year.
+Compared to 5 economically matched counties with no fire activity, Garfield County underperformed by 7.8 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $76M – $96M (UCLA Anderson methodology)
+Estimated wage loss at risk: $18M
+
+INDUSTRY EXPOSURE: Dominant sector is RV (Recreational Vehicle) Parks and Campgrounds, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 7.1% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+Cibola County, NM — Critical Risk
+Final Score: 0.965  |  Probability: 0.776  |  Impact: 0.554
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 261 weeks, indicating significant fuel dryness.
+Historical fire frequency of 107 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 6.0% year-over-year.
+Compared to 5 economically matched counties with no fire activity, Cibola County underperformed by 10.3 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $373M – $474M (UCLA Anderson methodology)
+Estimated wage loss at risk: $90M
+
+INDUSTRY EXPOSURE: Dominant sector is Hotels (except Casino Hotels) and Motels, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 6.9% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+DeBaca County, NM — Critical Risk
+Final Score: 0.961  |  Probability: 0.685  |  Impact: 0.622
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 208 weeks, indicating significant fuel dryness.
+Historical fire frequency of 14 recorded events reinforces the ignition risk profile.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $18M – $23M (UCLA Anderson methodology)
+Estimated wage loss at risk: $4M
+
+INDUSTRY EXPOSURE: Dominant sector is Hotels (except Casino Hotels) and Motels, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 4.1% (decay-weighted).
+
+RECOVERY TRAJECTORY (At Risk): No major historical fire impact measured, but structural vulnerability indicators are elevated.
+
+Piute County, UT — Critical Risk
+Final Score: 0.923  |  Probability: 0.622  |  Impact: 0.673
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 217 weeks, indicating significant fuel dryness.
+Historical fire frequency of 19 recorded events reinforces the ignition risk profile.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $20M – $25M (UCLA Anderson methodology)
+Estimated wage loss at risk: $5M
+
+INDUSTRY EXPOSURE: Dominant sector is All Other Amusement and Recreation Industries, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 5.0% (decay-weighted).
+
+RECOVERY TRAJECTORY (At Risk): No major historical fire impact measured, but structural vulnerability indicators are elevated.
+
+San Juan County, NM — Critical Risk
+Final Score: 0.918  |  Probability: 0.770  |  Impact: 0.534
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 261 weeks, indicating significant fuel dryness.
+Historical fire frequency of 208 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 7.5% year-over-year.
+Compared to 5 economically matched counties with no fire activity, San Juan County underperformed by 8.9 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $1674M – $2131M (UCLA Anderson methodology)
+Estimated wage loss at risk: $403M
+
+INDUSTRY EXPOSURE: Dominant sector is Hotels (except Casino Hotels) and Motels, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 6.1% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+Wayne County, UT — Critical Risk
+Final Score: 0.901  |  Probability: 0.697  |  Impact: 0.562
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 232 weeks, indicating significant fuel dryness.
+Historical fire frequency of 21 recorded events reinforces the ignition risk profile.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $40M – $51M (UCLA Anderson methodology)
+Estimated wage loss at risk: $10M
+
+INDUSTRY EXPOSURE: Dominant sector is Hotels (except Casino Hotels) and Motels, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 5.5% (decay-weighted).
+
+RECOVERY TRAJECTORY (At Risk): No major historical fire impact measured, but structural vulnerability indicators are elevated.
+
+Lake County, OR — Critical Risk
+Final Score: 0.857  |  Probability: 0.685  |  Impact: 0.547
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 214 weeks, indicating significant fuel dryness.
+Historical fire frequency of 290 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 5.4% year-over-year.
+Compared to 5 economically matched counties with no fire activity, Lake County underperformed by 11.8 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $99M – $126M (UCLA Anderson methodology)
+Estimated wage loss at risk: $24M
+
+INDUSTRY EXPOSURE: Dominant sector is Painting and Wall Covering Contractors, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 5.7% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+Presidio County, TX — Critical Risk
+Final Score: 0.846  |  Probability: 0.632  |  Impact: 0.583
+Quadrant: High Probability / High Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 194 weeks, indicating significant fuel dryness.
+Historical fire frequency of 4 recorded events reinforces the ignition risk profile.
+
+ECONOMIC IMPACT: Following significant fire events, county GDP grew 1.3% year-over-year.
+Compared to 5 economically matched counties with no fire activity, Presidio County underperformed by 13.7 percentage points — the wildfire-attributable economic gap.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $115M – $147M (UCLA Anderson methodology)
+Estimated wage loss at risk: $28M
+
+INDUSTRY EXPOSURE: Dominant sector is Full-Service Restaurants, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 8.6% (decay-weighted).
+
+RECOVERY TRAJECTORY (Resilient): Economy recovered to pre-fire levels despite fire exposure.
+
+McKinley County, NM — Critical Risk
+Final Score: 0.843  |  Probability: 0.770  |  Impact: 0.492
+Quadrant: High Probability / Low Impact
+
+FIRE PROBABILITY: The county's longest recorded consecutive drought span is 261 weeks, indicating significant fuel dryness.
+Historical fire frequency of 87 recorded events reinforces the ignition risk profile.
+
+ESTIMATED TOTAL ECONOMIC LOSS: $878M – $1118M (UCLA Anderson methodology)
+Estimated wage loss at risk: $212M
+
+INDUSTRY EXPOSURE: Dominant sector is Hotels (except Casino Hotels) and Motels, carrying elevated sensitivity to wildfire-driven disruption.
+Current unemployment rate: 7.4% (decay-weighted).
+
+RECOVERY TRAJECTORY (At Risk): No major historical fire impact measured, but structural vulnerability indicators are elevated.
+
+======================================================================

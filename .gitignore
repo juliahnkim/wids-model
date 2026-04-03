@@ -1,0 +1,30 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.pkl
+.claude/
+
+# Large data files — keep in local storage, not git
+data/raw/wui/
+data/raw/sdwis/
+data/raw/tiger_roads/
+data/raw/*.xlsx
+data/raw/*.csv
+data/raw/*.pdf
+*.xlsx
+*.gdb
+
+# Large input CSVs (tracked via data source documentation, not git)
+County Quarterly GDP Estimate*.xlsx
+FOIA_2019_PRESENT*.xlsx
+geo_events_geoevent_with_county*.csv
+Drought Monitor Data*.csv
+Unemployment Data*.csv
+CAGDP2/
+CAINC5N/
+
+# Large SCO/processed files
+data/raw/sco_city_revenues.csv
+data/raw/sco_city_expenditures.csv
+data/raw/sco_county_revenues.csv
+data/raw/sco_county_expenditures.csv

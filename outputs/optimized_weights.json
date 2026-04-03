@@ -1,0 +1,130 @@
+{
+    "DROUGHT_WEIGHTS": {
+        "max_consecutive_n": 0.05,
+        "recent_intensity_n": 0.5263,
+        "frequency_n": 0.4237,
+        "training_rows": 317,
+        "correlation": 0.1379,
+        "trained": true,
+        "training_date": "2026-04-02",
+        "constraint": "sum = 1.0"
+    },
+    "PROB_WEIGHTS": {
+        "drought": 0.7681,
+        "fire_frequency": 0.2319,
+        "training_rows": 317,
+        "correlation": 0.0884,
+        "trained": true,
+        "training_date": "2026-04-02",
+        "constraint": "sum = 1.0"
+    },
+    "IMPACT_WEIGHTS": {
+        "causal_impact": 0.40,
+        "industry_sensitivity": 0.25,
+        "economic_trajectory": 0.35,
+        "trained": false,
+        "reason": "leakage — causal_impact_score is derived from counterfactual_gap (the training label). Cannot optimize impact pillar weights against this label. Weights remain at defaults until an alternative label is identified.",
+        "leakage_note": "To train impact weights, use an alternative label that is not derived from counterfactual_gap — e.g., recovery_trajectory (Resilient/Slow/Chronic/At Risk as ordinal 0-3), or post-fire employment change from BLS QCEW. This is a P6 task once new features are available.",
+        "constraint": "sum = 1.0"
+    },
+    "INFRASTRUCTURE_WEIGHTS": {
+        "utility_hardening": 0.40,
+        "road_redundancy": 0.35,
+        "water_vulnerability": 0.25,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "sum = 1.0; reweight to available pillars if data missing"
+    },
+    "INFRASTRUCTURE_AMPLIFIER": {
+        "magnitude": 0.35,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "impact_adjusted = impact × (1.0 + vulnerability × magnitude)"
+    },
+    "FC_WEIGHTS": {
+        "S1100_lane_miles": 1.00,
+        "S1200_lane_miles": 0.50,
+        "S1400_lane_miles": 0.10,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "S1100 >= S1200 >= S1400 (primary >= secondary >= local)"
+    },
+    "FAIR_PLAN_WEIGHTS": {
+        "share_weight": 0.60,
+        "gap_weight": 0.40,
+        "max_amplifier": 1.20,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "max_amplifier <= 1.30"
+    },
+    "CA_WATER_WEIGHTS": {
+        "system_risk_score": 0.50,
+        "surface_water_dependency": 0.25,
+        "system_fragmentation": 0.25,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "sum = 1.0"
+    },
+    "CA_UTILITY_HARDENING_WEIGHTS": {
+        "hftd_exposure": 0.60,
+        "customer_density": 0.40,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "hftd_exposure >= customer_density always enforced"
+    },
+    "HFTD_TIER_WEIGHTS": {
+        "tier2": 0.50,
+        "tier3": 1.00,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "tier3 >= tier2 always enforced"
+    },
+    "FISCAL_RESILIENCE_WEIGHTS": {
+        "property_tax_dependence": 0.45,
+        "fiscal_surplus_ratio": 0.35,
+        "debt_service_burden": 0.20,
+        "ig_penalty_scale": 1.5,
+        "ig_penalty_threshold": 0.50,
+        "trained": false,
+        "reason": "pending_P5",
+        "scope": "CA_only"
+    },
+    "ECONOMIC_TRAJECTORY_WEIGHTS_CA": {
+        "unem_n": 0.30,
+        "unem_trend_n": 0.15,
+        "gdp_trend_n": 0.20,
+        "wage_base_n": 0.10,
+        "wage_trend_n": 0.10,
+        "fiscal_resilience_score": 0.15,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "sum = 1.0",
+        "scope": "CA_only"
+    },
+    "INCOME_VULNERABILITY_WEIGHTS": {
+        "low_income_share": 0.50,
+        "income_concentration": 0.30,
+        "agi_per_return": 0.20,
+        "trained": false,
+        "reason": "pending_P5",
+        "scope": "CA_only"
+    },
+    "ECONOMIC_TRAJECTORY_WEIGHTS_CA_FULL": {
+        "unem_n": 0.25,
+        "unem_trend_n": 0.10,
+        "gdp_trend_n": 0.15,
+        "wage_base_n": 0.10,
+        "wage_trend_n": 0.10,
+        "fiscal_resilience_score": 0.15,
+        "income_vulnerability_score": 0.15,
+        "trained": false,
+        "reason": "pending_P5",
+        "constraint": "sum = 1.0",
+        "scope": "CA_only — requires both SCO and FTB data"
+    },
+    "training_date": "2026-04-02",
+    "best_model": "xgboost",
+    "best_model_cv_r2": 0.7670,
+    "best_model_cv_std": 0.0225,
+    "baseline_r2": 0.4224
+}

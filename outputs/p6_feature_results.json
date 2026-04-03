@@ -1,0 +1,13 @@
+{
+  "final_features": [
+    "drought_weeks_before",
+    "unemployment_rate",
+    "gdp_per_capita",
+    "industry_sensitivity",
+    "fire_frequency",
+    "wage_base_m"
+  ],
+  "final_cv_r2": 0.5193,
+  "baseline_r2": 0.767,
+  "improvement": -0.2477
+}
