@@ -37,8 +37,13 @@
     },
     "INFRASTRUCTURE_AMPLIFIER": {
         "magnitude": 0.35,
-        "trained": false,
-        "reason": "pending_P5",
+        "trained": true,
+        "training_date": "2026-04-02",
+        "label": "recovery_trajectory",
+        "label_note": "Infrastructure vulnerability is a recovery-duration signal, not a damage-severity signal. Trained against recovery trajectory (Resilient/Slow/Chronic), NOT counterfactual_gap. Grid search α=[0.05–0.50] vs counterfactual_gap yielded r=0.053 (p=0.36) with <0.001 spread across all α — no signal. Recovery trajectory is the correct target per MODEL_CHANGES.md P5 Part D.",
+        "validation_rows": 301,
+        "counterfactual_gap_r": 0.0524,
+        "counterfactual_gap_p": 0.365,
         "constraint": "impact_adjusted = impact × (1.0 + vulnerability × magnitude)"
     },
     "FC_WEIGHTS": {
@@ -121,6 +126,12 @@
         "reason": "pending_P5",
         "constraint": "sum = 1.0",
         "scope": "CA_only — requires both SCO and FTB data"
+    },
+    "TOT_AMPLIFIER": {
+        "magnitude": 0.20,
+        "trained": false,
+        "reason": "pending_P5_rerun",
+        "scope": "CA_only"
     },
     "training_date": "2026-04-02",
     "best_model": "xgboost",

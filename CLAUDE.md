@@ -19,7 +19,7 @@ Do not use Zillow or residential home price data anywhere in this pipeline.
 ## Current Codebase
 
 ### Entry Point
-`Wildfire_Risk_Analysis_1.py` — Python pipeline, currently v5/v6
+`Wildfire_Risk_Analysis_1.py` — Python pipeline, currently v10
 
 ### Current Data Files (do not modify paths without instruction)
 - `County Quarterly GDP Estimate.xlsx` — quarterly county GDP + population
@@ -31,7 +31,7 @@ Do not use Zillow or residential home price data anywhere in this pipeline.
 ### Pipeline Architecture (current)
 
 ```
-load_data() → 5 files
+load_data() → 19 datasets
     │
     ├── PROBABILITY LAYER
     │   build_drought_score()               # drought × 0.60
@@ -60,13 +60,13 @@ load_data() → 5 files
         predict_current_impact()            # current conditions → GDP impact %
 ```
 
-### Key Config Values (frozen — do not change without explicit instruction)
-- `DECAY_RATE = 0.3` — exponential decay λ for time-weighting: e^(-0.3 × years_ago)
-- `PRE_POST_QTR = 4` — quarters before/after fire for GDP measurement windows
-- `N_CONTROLS = 5` — control counties for counterfactual matching
-- `MIN_ACREAGE = 50` — minimum fire size to include in training/analysis
+### Key Config Values (frozen — all confirmed by sensitivity analysis)
+- `DECAY_RATE = 0.3` — confirmed, no change (tested 0.1–0.5)
+- `PRE_POST_QTR = 4` — confirmed, no change (tested 2–8)
+- `N_CONTROLS = 5` — confirmed, no change (tested 3–10)
+- `MIN_ACREAGE = 50` — changed from 100 (tested 50–1000, +39% training rows)
 - Final score formula: `probability × impact` (multiplication, not addition — intentional)
-- Tier cut points: `[0, 0.25, 0.50, 0.75, 1.0]` → Low/Moderate/High/Critical
+- Tier cut points: `[0, 0.25, 0.50, 0.75, 1.0]` — confirmed, no change (tested 4 schemes)
 
 ### Current ML Features
 ```python
@@ -88,17 +88,11 @@ LABEL_COL = "counterfactual_gap"  # GDP delta vs matched controls post-fire
                                    # (was gdp_delta_pct — fixed in P2.5)
 ```
 
-### Known Issues to Fix (in priority order)
-1. **County name string joins** — GDP and several functions join on
-   `county.lower().strip()` strings instead of FIPS. Silently drops counties
-   where names differ between datasets. Fix with crosswalk before adding any new data.
-2. **dominant_sector silently dropped** — `build_recovery_trajectory()` merges
-   only 4 columns from the industry DataFrame, dropping `dominant_sector` and
-   `industry_source`. One-line fix in P1. Blocks P3d USDA NASS agricultural
-   amplifier until fixed.
-3. **No dollar figures anywhere** — all outputs are percentages and 0–1 scores.
-4. **Hardcoded weights undefended** — all pillar weights load from
-   `optimized_weights.json` with hardcoded defaults. Training in P5.
+### Known Issues (resolved)
+1. ~~County name string joins~~ — Fixed in P1 (FIPS crosswalk)
+2. ~~dominant_sector silently dropped~~ — Fixed in P1
+3. ~~No dollar figures~~ — Fixed in P2 (UCLA Anderson multiplier)
+4. ~~Hardcoded weights~~ — Fixed in P5 (optimized_weights.json with SLSQP training)
 5. **CBP API call in `_naics_from_cbp()`** is live HTTP — can fail silently.
 
 ### Current Outputs (7 files)
@@ -108,7 +102,7 @@ county_impact_scores.csv         — economic damage severity if fire occurs
 county_final_risk_scores.csv     — probability × impact + ML predictions
 county_ml_predictions.csv        — predicted GDP impact + SHAP
 county_causal_evidence.csv       — pre/post + counterfactual fire event detail
-wildfire_rf_model.pkl            — trained model (reused on subsequent runs)
+best_model.pkl / best_model_ca.pkl — stratified XGBoost models (non-CA / CA)
 risk_summary_report.txt          — shareholder narrative (template-based, pre-AI)
 ```
 
@@ -364,7 +358,7 @@ Do not write any code until I confirm your plan.
 ```
 
 Work one priority at a time. Confirm output county counts match baseline
-(876 counties) before moving to next priority. If counts drop after a change,
+(879 counties) before moving to next priority. If counts drop after a change,
 a join broke — fix before proceeding.
 
 ---
@@ -379,9 +373,9 @@ a join broke — fix before proceeding.
 - P3b: BLS QCEW wage base + wage growth trend
 - P3c: CA FAIR Plan underinsurance amplifier
 - P3d: USDA NASS agricultural land value amplifier
-       (54 ag-dominant counties in 876 set, amplifier range 1.012–1.155,
+       (54 ag-dominant counties in 879 set, amplifier range 1.012–1.155,
         Glenn CA highest at $10,262/acre, magnitude from optimized_weights.json,
-        876 baseline held)
+        879 baseline held)
 - P3e: EPA SDWIS non-CA water vulnerability + CA SWRCB SAFER
        + ACS B25049 private well proxy (Gap 2 fix, weight=0.15,
         113 counties with note, rural mean 1.66x urban)
@@ -392,25 +386,27 @@ a join broke — fix before proceeding.
        (58/58 CA counties, ig_penalty implemented, SF from city dataset)
 - P3j: FTB B-7 AGI income vulnerability
        (58/58 CA counties, r=-0.458 with fiscal — complementary not redundant)
-- P3: ALL DATA SOURCES COMPLETE (P3a–P3j + FAIR Plan res/com split + private well proxy)
+- P3k: SCO TOT tourism amplifier (CA only)
+       (57/58 CA counties, tot_share 0.000–0.098, amplifier 1.000–1.200,
+        Mariposa highest at 0.098 (Yosemite gateway), clip-only pattern,
+        tier impact: +1 High, -1 Moderate, 879 baseline held)
+- P3: ALL DATA SOURCES COMPLETE (P3a–P3k + FAIR Plan res/com split + private well proxy)
 - P4: Infrastructure resilience score — all 3 pillars complete
-       (std=0.157, range=0.885, 876 baseline held)
+       (std=0.157, range=0.885, 879 baseline held)
 
 - P5: Model selection + weight training
-       (XGBoost selected, retrained on P3-complete data,
-        CV R²=0.516 ± 0.058, 1526 rows, 6 features,
-        DROUGHT+PROB weights trained, IMPACT weights via QCEW alt label)
+       (XGBoost selected, DROUGHT+PROB weights trained,
+        IMPACT weights via QCEW employment delta alt label)
 
 - P6: ML feature expansion + stratified model deployment
        (wage_base_m kept, fair_plan_share tested +0.002 → dropped;
-        IMPACT_WEIGHTS trained via QCEW employment delta — alternative label,
-        causal=0.06, industry=0.45, econ=0.49, r=-0.158, 228 rows;
-        stratified CA/non-CA models adopted — CA CV R²=0.554, non-CA R²=0.528,
-        both beat national 0.516; same 6 FEATURE_COLS for both;
+        IMPACT_WEIGHTS trained: causal=0.06, industry=0.45, econ=0.49;
+        stratified CA/non-CA models adopted;
         CA-specific features all tested and dropped — hurt even within CA;
         predict_current_impact() routes by FIPS 6001–6115;
-        non-CA expanded to 8 features: +water_vulnerability_score, +private_well_proxy_pct
-        non-CA CV R²=0.563 ± 0.126 (up from 0.528); CA unchanged at 0.550)
+        non-CA expanded to 8 features: +water_vulnerability_score, +private_well_proxy_pct;
+        MIN_ACREAGE lowered 100→50, +39% training rows, both models improved;
+        final: CA R²=0.629 (792 rows, 6 feat), non-CA R²=0.589 (1324 rows, 8 feat))
 
 ### Pipeline Status
 - Version: v10

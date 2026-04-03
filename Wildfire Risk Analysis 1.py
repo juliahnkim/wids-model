@@ -1913,6 +1913,78 @@ def build_usda_nass_amplifier(
                        "nass_data_available"]]
 
 
+def build_tot_amplifier(
+    revenues: pd.DataFrame,
+    crosswalk: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    P3k: Tourism concentration amplifier from SCO Transient Occupancy Tax.
+    CA only — high TOT share signals tourism-dependent economy where fire
+    closures destroy an entire visitor season regardless of physical damage.
+
+    Magnitude loaded from optimized_weights.json TOT_AMPLIFIER.
+    Non-CA counties get tot_amplifier = 1.0.
+    """
+    print("\n[P3k] Building TOT tourism amplifier (CA SCO)...")
+
+    tw = _load_weights("TOT_AMPLIFIER", {"magnitude": 0.20})
+    magnitude = tw["magnitude"]
+    print(f"  TOT amplifier magnitude: {magnitude:.2f}")
+
+    rev = revenues.copy()
+    rev["Values"] = pd.to_numeric(rev["Values"], errors="coerce")
+
+    # TOT revenue per county
+    tot_rows = rev[rev["Subcategory 1"] == "Transient Lodging (Room Occupancy)"]
+    tot_by_county = (
+        tot_rows.groupby("Entity Name")["Values"]
+        .sum()
+        .reset_index(name="tot_revenue")
+    )
+
+    # Total revenue per county (same fiscal year scope)
+    total_by_county = (
+        rev.groupby("Entity Name")["Values"]
+        .sum()
+        .reset_index(name="total_revenue")
+    )
+
+    df = tot_by_county.merge(total_by_county, on="Entity Name", how="left")
+    df["tot_share"] = (df["tot_revenue"] / df["total_revenue"].replace(0, np.nan)).clip(0, 1)
+
+    # Map to FIPS via crosswalk
+    ca_xw = crosswalk[crosswalk["state_abbr"] == "CA"][["fips", "county_key_short"]].copy()
+    df["county_key"] = df["Entity Name"].str.lower().str.strip()
+    df = df.merge(
+        ca_xw.rename(columns={"county_key_short": "county_key"}),
+        on="county_key", how="left"
+    )
+
+    matched = df["fips"].notna().sum()
+    print(f"  CA counties matched: {matched}/{len(df)}")
+
+    df = df[df["fips"].notna()].copy()
+    df["fips"] = df["fips"].astype("Int64")
+
+    # Normalize tot_share across CA counties, apply amplifier
+    df["tot_share_n"] = normalize(df["tot_share"])
+    df["tot_amplifier"] = 1.0 + df["tot_share_n"] * magnitude
+    df["tot_data_available"] = True
+
+    n_with_tot = (df["tot_share"] > 0).sum()
+    print(f"  Counties with nonzero TOT: {n_with_tot}")
+    print(f"  tot_share range: {df['tot_share'].min():.4f} – {df['tot_share'].max():.4f} "
+          f"(mean: {df['tot_share'].mean():.4f})")
+    print(f"  tot_amplifier range: {df['tot_amplifier'].min():.3f} – {df['tot_amplifier'].max():.3f}")
+
+    top5 = df.nlargest(5, "tot_share")
+    print("  Top 5 by tot_share:")
+    for _, row in top5.iterrows():
+        print(f"    {row['Entity Name']:20s}  share={row['tot_share']:.4f}  amp={row['tot_amplifier']:.3f}")
+
+    return df[["fips", "tot_share", "tot_amplifier", "tot_data_available"]]
+
+
 def build_water_vulnerability(
     sdwis_dir: str = "data/raw/sdwis",
     crosswalk: pd.DataFrame = None,
@@ -2968,15 +3040,14 @@ def add_dollar_loss_estimate(
     gdp: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    Converts predicted GDP impact % into a dollar loss range.
+    Converts predicted GDP impact % into dollar loss estimate.
 
-    UCLA Anderson multipliers (2025):
-      2.2 = California wildfire historical baseline
-      2.8 = Hurricane Katrina infrastructure ratio (upper bound)
+    predicted_gdp_impact_pct is already a total economic measure
+    (counterfactual GDP gap vs matched controls). No multiplier needed —
+    the UCLA Anderson 2.2–2.8x converts insured property loss to total
+    economic loss, which is not applicable here.
     """
-    print("\n[P2] Adding dollar loss estimates (UCLA Anderson methodology)...")
-    UCLA_LOW  = 2.2
-    UCLA_HIGH = 2.8
+    print("\n[P2] Adding dollar loss estimates...")
 
     # P1: use FIPS for GDP total lookup
     # GDP values are annualized quarterly estimates — use mean, not sum
@@ -2999,20 +3070,20 @@ def add_dollar_loss_estimate(
             * df["predicted_gdp_impact_pct"].abs() / 100
             * wui_frac
         )
-        df["total_loss_low_m"]  = df["predicted_gdp_loss_m"] * UCLA_LOW
-        df["total_loss_high_m"] = df["predicted_gdp_loss_m"] * UCLA_HIGH
-        df["estimated_loss_m"]  = (df["total_loss_low_m"] + df["total_loss_high_m"]) / 2
+        # No multiplier — predicted_gdp_impact_pct is already total economic impact
+        df["estimated_loss_m"]  = df["predicted_gdp_loss_m"]
+        df["total_loss_low_m"]  = df["predicted_gdp_loss_m"]
+        df["total_loss_high_m"] = df["predicted_gdp_loss_m"]
     else:
         df["predicted_gdp_loss_m"] = np.nan
         df["total_loss_low_m"]     = np.nan
         df["total_loss_high_m"]    = np.nan
         df["estimated_loss_m"]     = np.nan
 
-    populated = df["total_loss_low_m"].notna().sum()
+    populated = df["predicted_gdp_loss_m"].notna().sum()
     print(f"  Counties with dollar estimates: {populated}")
     if populated > 0:
-        print(f"  Total GDP loss range: ${df['total_loss_low_m'].sum():.0f}M – "
-              f"${df['total_loss_high_m'].sum():.0f}M")
+        print(f"  Total predicted GDP loss: ${df['predicted_gdp_loss_m'].sum():.0f}M")
     return df
 
 
@@ -3773,6 +3844,20 @@ def main():
         impact["impact_score"] = (impact["impact_score"] * impact["nass_amplifier"]).clip(0, 1)
         print(f"  Applied NASS amplifier to {n_amplified} ag-dominant counties")
 
+    # P3k: SCO TOT tourism amplifier (CA only)
+    if Path("data/raw/sco_county_revenues.csv").exists():
+        sco_rev_tot = pd.read_csv("data/raw/sco_county_revenues.csv", low_memory=False)
+        tot_amp = build_tot_amplifier(sco_rev_tot, crosswalk)
+        impact = impact.merge(
+            tot_amp[["fips", "tot_share", "tot_amplifier", "tot_data_available"]],
+            on="fips", how="left"
+        )
+        impact["tot_amplifier"] = impact["tot_amplifier"].fillna(1.0)
+        impact["tot_data_available"] = impact["tot_data_available"].fillna(False)
+        n_amplified_tot = (impact["tot_amplifier"] > 1.0).sum()
+        impact["impact_score"] = (impact["impact_score"] * impact["tot_amplifier"]).clip(0, 1)
+        print(f"  Applied TOT amplifier to {n_amplified_tot} CA tourism counties")
+
     # P3e-h + P4: Infrastructure data (loaded here, composed in P4)
     county_areas = None
     if Path("data/raw/2023_Gaz_counties_national.txt").exists():
@@ -3956,6 +4041,7 @@ def main():
         "top_industries","dominant_sector","industry_source",
         "economic_trajectory","decay_unem_rate","gdp_growth_trend",
         "land_value_per_acre","nass_amplifier","nass_data_available",
+        "tot_share","tot_amplifier","tot_data_available",
     ] if c in impact.columns]
 
     final_cols = [c for c in [
